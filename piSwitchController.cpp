@@ -2,9 +2,13 @@
 #include <RF24/RF24.h>
 #include <RF24Network/RF24Network.h>
 
+#define MAX_CONNECTED_NODES 255
+
 RF24 radio(24,0);
 RF24Network network(radio);
 RF24Mesh mesh(radio,network);
+
+bool status [MAX_CONNECTED_NODES] = {};
 
 int main(int argc, char** argv) {
     mesh.setNodeID(0);
@@ -25,6 +29,12 @@ int main(int argc, char** argv) {
                 case 'M': 
                     network.read(header, &dat, sizeof(dat)); 
                     printf("Rcv %u from 0%o\n",dat,header.from_node);
+                    break;
+                case 65:
+                    network.read(header, &dat, sizeof(dat));
+                    printf("Rcv %u from 0%o\n",dat,header.from_node);
+                    status[header.from_node] = dat;
+                    printf("Value: %s\n",status[header.from_node] ? "true" : "false");
                     break;
                 default: 
                     network.read(header,0,0); 
